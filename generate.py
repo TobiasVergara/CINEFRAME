@@ -68,8 +68,17 @@ Nacionalidades válidas: {", ".join(NATIONALITIES)}"""
     url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}, method="POST")
 
-    with urllib.request.urlopen(req) as resp:
-        data = json.loads(resp.read())
+   try:
+        with urllib.request.urlopen(req) as resp:
+            data = json.loads(resp.read())
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        try:
+            print("Respuesta de Gemini:", e.read().decode())
+        except:
+            pass
+        raise
 
     raw = data["candidates"][0]["content"]["parts"][0]["text"].strip()
     raw = re.sub(r"^```[a-z]*\n?", "", raw)
