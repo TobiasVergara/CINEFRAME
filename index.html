@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineFrame — Adivina la película</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+  --bg: #0D0D0F;
+  --surface: #161618;
+  --surface2: #1E1E21;
+  --border: rgba(255,255,255,0.07);
+  --border2: rgba(255,255,255,0.14);
+  --text: #F0EEED;
+  --muted: #777472;
+  --gold: #E8C54A;
+  --green: #4ABA7A;
+  --red: #E05252;
+  --accent: #7C6EF0;
+  --r: 10px;
+  --rlg: 14px;
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'Space Grotesk', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16px 80px;
+}
+
+/* ── HEADER ── */
+header {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 22px 0 18px;
+  border-bottom: 0.5px solid var(--border2);
+  margin-bottom: 28px;
+}
+.logo-name {
+  font-family: 'Space Mono', monospace;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--gold);
+  letter-spacing: -0.3px;
+}
+.logo-tag {
+  font-size: 10px;
+  letter-spacing: 2px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-top: 3px;
+}
+.hdr-right { text-align: right; }
+.hdr-date { font-size: 11px; color: var(--muted); letter-spacing: 1px; text-transform: uppercase; }
+.hdr-score {
+  font-family: 'Space Mono', monospace;
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-top: 2px;
+}
+
+/* ── PROGRESS DOTS ── */
+.dots {
+  width: 100%;
+  max-width: 700px;
+  display: flex;
+  gap: 6px;
+  margin-bottom: 24px;
+}
+.dot {
+  flex: 1;
+  height: 3px;
+  border-radius: 2px;
+  background: var(--surface2);
+  transition: background .4s;
+}
+.dot.done { background: var(--green); }
+.dot.active { background: var(--gold); }
+
+/* ── CARD ── */
+.card {
+  width: 100%;
+  max-width: 700px;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--rlg);
+  overflow: hidden;
+}
+
+/* ── FRAME ── */
+.frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16/9;
+  background: #000;
+  overflow: hidden;
+}
+.frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  display: block;
+  transition: filter 1.5s ease;
+}
+.frame-grad {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to bottom, rgba(0,0,0,.15) 0%, transparent 40%, rgba(0,0,0,.55) 100%);
+  pointer-events: none;
+}
+.frame-round {
+  position: absolute;
+  top: 14px;
+  left: 16px;
+  font-family: 'Space Mono', monospace;
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(255,255,255,.5);
+  text-transform: uppercase;
+}
+.frame-hint {
+  position: absolute;
+  bottom: 14px;
+  right: 16px;
+  font-size: 11px;
+  color: rgba(255,255,255,.4);
+  letter-spacing: 1px;
+}
+
+/* ── INPUTS ── */
+.inputs {
+  padding: 20px 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+.flabel {
+  font-size: 10px;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--muted);
+  margin-bottom: 5px;
+}
+input[type=text], input[type=number], select {
+  width: 100%;
+  background: var(--surface2);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r);
+  padding: 11px 13px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  outline: none;
+  transition: border-color .2s;
+}
+input:focus, select:focus { border-color: var(--accent); }
+input::placeholder { color: var(--muted); }
+input:disabled, select:disabled { opacity: .4; cursor: not-allowed; }
+select {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23777472' d='M5 6L0 0h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  padding-right: 32px;
+  cursor: pointer;
+}
+.two-col { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.btn-go {
+  background: var(--gold);
+  color: #0D0D0F;
+  border: none;
+  border-radius: var(--r);
+  padding: 13px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  width: 100%;
+  transition: opacity .2s, transform .1s;
+  letter-spacing: .3px;
+}
+.btn-go:hover { opacity: .85; }
+.btn-go:active { transform: scale(.98); }
+.btn-go:disabled { opacity: .3; cursor: not-allowed; }
+
+/* ── RESULT PANEL ── */
+.result {
+  display: none;
+  padding: 18px 20px 22px;
+  border-top: 0.5px solid var(--border);
+  flex-direction: column;
+  gap: 12px;
+}
+.result.on { display: flex; }
+.result-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+.result-title { font-size: 17px; font-weight: 600; line-height: 1.3; }
+.result-pts {
+  font-family: 'Space Mono', monospace;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--gold);
+  white-space: nowrap;
+}
+.breakdown {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.bk-item {
+  background: var(--surface2);
+  border-radius: var(--r);
+  padding: 10px 12px;
+}
+.bk-label { font-size: 9px; letter-spacing: 1.5px; text-transform: uppercase; color: var(--muted); }
+.bk-value { font-size: 12px; color: var(--text); margin: 3px 0; font-weight: 500; }
+.bk-score { font-family: 'Space Mono', monospace; font-size: 18px; font-weight: 700; }
+.s-green { color: var(--green); }
+.s-gold  { color: var(--gold); }
+.s-red   { color: var(--red); }
+.s-muted { color: var(--muted); }
+
+.btn-next {
+  background: transparent;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r);
+  padding: 11px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  transition: background .2s;
+  width: 100%;
+}
+.btn-next:hover { background: var(--surface2); }
+
+/* ── FINAL ── */
+#final {
+  display: none;
+  width: 100%;
+  max-width: 700px;
+  flex-direction: column;
+  gap: 16px;
+}
+#final.on { display: flex; }
+
+.final-hero {
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--rlg);
+  padding: 36px 24px 28px;
+  text-align: center;
+}
+.final-label { font-size: 10px; letter-spacing: 2px; text-transform: uppercase; color: var(--muted); }
+.final-num {
+  font-family: 'Space Mono', monospace;
+  font-size: 64px;
+  font-weight: 700;
+  color: var(--gold);
+  line-height: 1;
+  margin: 10px 0 4px;
+}
+.final-denom { font-family: 'Space Mono', monospace; font-size: 13px; color: var(--muted); }
+.final-grade { font-size: 17px; font-weight: 500; margin-top: 14px; }
+
+.summary { display: flex; flex-direction: column; gap: 6px; }
+.sum-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: var(--surface);
+  border: 0.5px solid var(--border);
+  border-radius: var(--r);
+}
+.sum-n { font-family: 'Space Mono', monospace; font-size: 10px; color: var(--muted); min-width: 14px; }
+.sum-title { flex: 1; font-size: 13px; }
+.sum-bar-wrap { width: 70px; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+.sum-bar { height: 100%; background: var(--gold); border-radius: 2px; }
+.sum-pts { font-family: 'Space Mono', monospace; font-size: 14px; color: var(--gold); font-weight: 700; min-width: 40px; text-align: right; }
+
+.btn-share {
+  background: transparent;
+  border: 0.5px solid var(--border2);
+  border-radius: var(--r);
+  padding: 13px;
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 14px;
+  color: var(--text);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  transition: background .2s;
+}
+.btn-share:hover { background: var(--surface2); }
+
+/* ── LOADING / EMPTY STATES ── */
+.state-box {
+  width: 100%;
+  max-width: 700px;
+  padding: 60px 24px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  background: var(--surface);
+  border: 0.5px solid var(--border2);
+  border-radius: var(--rlg);
+  text-align: center;
+}
+.state-box p { font-size: 14px; color: var(--muted); max-width: 340px; line-height: 1.6; }
+
+/* ── TOAST ── */
+.toast {
+  position: fixed;
+  bottom: 24px;
+  left: 50%;
+  transform: translateX(-50%) translateY(16px);
+  background: var(--green);
+  color: #0D0D0F;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 10px 20px;
+  border-radius: var(--r);
+  opacity: 0;
+  pointer-events: none;
+  transition: all .25s;
+  z-index: 99;
+}
+.toast.on { opacity: 1; transform: translateX(-50%) translateY(0); }
+
+@keyframes fadein { from { opacity:0; transform:scale(1.02); } to { opacity:1; transform:scale(1); } }
+.fadein { animation: fadein .45s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo-name">CINEFRAME</div>
+    <div class="logo-tag">Adivina la película</div>
+  </div>
+  <div class="hdr-right">
+    <div class="hdr-date" id="hdrDate">—</div>
+    <div class="hdr-score" id="hdrScore">0</div>
+  </div>
+</header>
+
+<div class="dots" id="dots">
+  <div class="dot active" id="d0"></div>
+  <div class="dot" id="d1"></div>
+  <div class="dot" id="d2"></div>
+  <div class="dot" id="d3"></div>
+  <div class="dot" id="d4"></div>
+</div>
+
+<!-- GAME CARD -->
+<div class="card" id="card">
+  <div class="frame">
+    <img id="frameImg" src="" alt="Fotograma" />
+    <div class="frame-grad"></div>
+    <div class="frame-round" id="frameRound">Ronda 1 / 5</div>
+    <div class="frame-hint" id="frameHint"></div>
+  </div>
+
+  <div class="inputs">
+    <div>
+      <div class="flabel">Título de la película</div>
+      <input type="text" id="iTitle" placeholder="Escribe el título..." autocomplete="off" />
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="flabel">Año de estreno</div>
+        <input type="number" id="iYear" placeholder="Ej: 1994" min="1888" max="2030" />
+      </div>
+      <div>
+        <div class="flabel">Nacionalidad</div>
+        <select id="iNat">
+          <option value="">Selecciona...</option>
+          <option>Americana</option><option>Española</option><option>Francesa</option>
+          <option>Italiana</option><option>Británica</option><option>Alemana</option>
+          <option>Japonesa</option><option>Coreana</option><option>Mexicana</option>
+          <option>Argentina</option><option>Sueca</option><option>Danesa</option>
+          <option>Rusa / Soviética</option><option>China</option><option>Iraní</option>
+          <option>India</option><option>Australiana</option><option>Canadiense</option>
+          <option>Belga</option><option>Polaca</option><option>Otra</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-go" id="btnGo">Confirmar respuesta</button>
+  </div>
+
+  <div class="result" id="result">
+    <div class="result-top">
+      <div class="result-title" id="rTitle">—</div>
+      <div class="result-pts" id="rPts">—</div>
+    </div>
+    <div class="breakdown" id="rBreakdown"></div>
+    <button class="btn-next" id="btnNext">Siguiente ronda →</button>
+  </div>
+</div>
+
+<!-- FINAL SCREEN -->
+<div id="final">
+  <div class="final-hero">
+    <div class="final-label">Puntuación final</div>
+    <div class="final-num" id="finalNum">0</div>
+    <div class="final-denom">/ 1500 puntos</div>
+    <div class="final-grade" id="finalGrade"></div>
+  </div>
+  <div class="summary" id="summary"></div>
+  <button class="btn-share" id="btnShare">
+    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    Compartir resultado
+  </button>
+</div>
+
+<!-- LOADING -->
+<div class="state-box" id="stateLoading">
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  <div style="font-size:17px;font-weight:500">Cargando películas...</div>
+  <p>Obteniendo el set de hoy desde el repositorio.</p>
+</div>
+
+<!-- NO DATA -->
+<div class="state-box" id="stateEmpty" style="display:none">
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div style="font-size:17px;font-weight:500">Sin películas para hoy</div>
+  <p>El generador automático todavía no ha añadido el set de hoy. Vuelve más tarde o ejecuta <code style="font-size:12px;color:var(--gold)">python generate.py</code> manualmente.</p>
+</div>
+
+<!-- ALREADY PLAYED -->
+<div class="state-box" id="stateAlready" style="display:none">
+  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+  <div style="font-size:17px;font-weight:500">Ya jugaste hoy</div>
+  <p>Vuelve mañana a las 00:00 para un nuevo set de películas.</p>
+  <div id="alreadyPts" style="font-family:monospace;font-size:26px;color:var(--gold);font-weight:700;margin-top:4px"></div>
+</div>
+
+<div class="toast" id="toast">¡Copiado al portapapeles!</div>
+
+<script>
+// ── Utilidades ────────────────────────────────────────────────────────────────
+const $ = id => document.getElementById(id);
+const todayKey = () => {
+  const d = new Date();
+  return d.toISOString().slice(0, 10);
+};
+const STORAGE_KEY = () => "cf2_" + todayKey();
+
+function show(id)  { $(id).style.display = 'flex'; }
+function hide(id)  { $(id).style.display = 'none'; }
+function hideCard() {
+  $('card').style.display = 'none';
+  $('dots').style.display = 'none';
+}
+
+// ── Scoring ───────────────────────────────────────────────────────────────────
+function norm(s) {
+  return (s || "").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+    .replace(/[^a-z0-9]/g, "").trim();
+}
+function levenshtein(a, b) {
+  const m = a.length, n = b.length;
+  const dp = Array.from({length: m+1}, (_, i) =>
+    Array.from({length: n+1}, (_, j) => i === 0 ? j : j === 0 ? i : 0));
+  for (let i = 1; i <= m; i++)
+    for (let j = 1; j <= n; j++)
+      dp[i][j] = a[i-1]===b[j-1] ? dp[i-1][j-1] : 1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+function scoreTitle(guess, answer) {
+  if (!guess) return 0;
+  const g = norm(guess), a = norm(answer);
+  if (g === a) return 100;
+  const dist = levenshtein(g, a);
+  const sim = 1 - dist / Math.max(g.length, a.length);
+  if (sim >= .85) return 90;
+  if (sim >= .70) return 70;
+  if (sim >= .50) return 40;
+  if (sim >= .30) return 15;
+  return 0;
+}
+function scoreYear(guess, answer) {
+  if (!guess) return 0;
+  const d = Math.abs(parseInt(guess) - answer);
+  if (d === 0) return 100;
+  if (d === 1) return 80;
+  if (d === 2) return 60;
+  if (d === 3) return 40;
+  if (d <= 5)  return 20;
+  if (d <= 10) return 5;
+  return 0;
+}
+function scoreNat(guess, answer) {
+  return guess && norm(guess) === norm(answer) ? 100 : 0;
+}
+function scoreClass(s) {
+  return s >= 80 ? 's-green' : s >= 40 ? 's-gold' : s > 0 ? 's-red' : 's-muted';
+}
+
+// ── State ─────────────────────────────────────────────────────────────────────
+let movies = [];
+let state = { round: 0, total: 0, roundScores: [], done: false };
+
+function loadState() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORAGE_KEY()));
+    if (s) state = s;
+  } catch(e) {}
+}
+function saveState() {
+  localStorage.setItem(STORAGE_KEY(), JSON.stringify(state));
+}
+
+// ── Render ────────────────────────────────────────────────────────────────────
+function updateDots() {
+  for (let i = 0; i < 5; i++) {
+    const d = $('d'+i);
+    d.className = 'dot';
+    if (i < state.round) d.classList.add('done');
+    else if (i === state.round) d.classList.add('active');
+  }
+}
+
+function renderRound() {
+  const m = movies[state.round];
+  $('frameRound').textContent = `Ronda ${state.round + 1} / 5`;
+  $('frameHint').textContent = '';
+  $('frameImg').src = m.image;
+  $('frameImg').className = 'fadein';
+  $('iTitle').value = '';
+  $('iYear').value = '';
+  $('iNat').value = '';
+  ['iTitle','iYear','iNat','btnGo'].forEach(id => $(id).disabled = false);
+  $('result').classList.remove('on');
+  updateDots();
+  $('hdrScore').textContent = state.total;
+}
+
+function showResult(ts, ys, ns, m) {
+  const total = ts + ys + ns;
+  $('rTitle').textContent = `${m.title} (${m.year})`;
+  $('rPts').textContent = total + ' pts';
+  $('frameHint').textContent = m.hint || m.director || '';
+  $('rBreakdown').innerHTML = `
+    <div class="bk-item">
+      <div class="bk-label">Título</div>
+      <div class="bk-value">${m.title}</div>
+      <div class="bk-score ${scoreClass(ts)}">${ts}</div>
+    </div>
+    <div class="bk-item">
+      <div class="bk-label">Año</div>
+      <div class="bk-value">${m.year}</div>
+      <div class="bk-score ${scoreClass(ys)}">${ys}</div>
+    </div>
+    <div class="bk-item">
+      <div class="bk-label">Nacionalidad</div>
+      <div class="bk-value">${m.nationality}</div>
+      <div class="bk-score ${scoreClass(ns)}">${ns}</div>
+    </div>
+  `;
+  $('result').classList.add('on');
+}
+
+function showFinal() {
+  hideCard();
+  $('final').classList.add('on');
+  $('finalNum').textContent = state.total;
+  const grades = [
+    [1400,'🎬 Maestro del celuloide'],
+    [1100,'🎥 Gran cinéfilo'],
+    [800,'🍿 Aficionado con clase'],
+    [500,'🎞️ En camino'],
+    [0,'📽️ Sigue entrenando']
+  ];
+  $('finalGrade').textContent = grades.find(g => state.total >= g[0])[1];
+  $('summary').innerHTML = state.roundScores.map((sc,i) => `
+    <div class="sum-row">
+      <div class="sum-n">${i+1}</div>
+      <div class="sum-title">${movies[i].title} <span style="color:var(--muted);font-size:11px">${movies[i].year}</span></div>
+      <div class="sum-bar-wrap"><div class="sum-bar" style="width:${(sc/300*100).toFixed(0)}%"></div></div>
+      <div class="sum-pts">${sc}</div>
+    </div>
+  `).join('');
+}
+
+// ── Events ────────────────────────────────────────────────────────────────────
+$('btnGo').addEventListener('click', () => {
+  const m = movies[state.round];
+  const ts = scoreTitle($('iTitle').value, m.title);
+  const ys = scoreYear($('iYear').value, m.year);
+  const ns = scoreNat($('iNat').value, m.nationality);
+  const rnd = ts + ys + ns;
+
+  state.total += rnd;
+  state.roundScores.push(rnd);
+  state.round++;
+  if (state.round === 5) state.done = true;
+  saveState();
+
+  ['iTitle','iYear','iNat','btnGo'].forEach(id => $(id).disabled = true);
+  updateDots();
+  $('hdrScore').textContent = state.total;
+  showResult(ts, ys, ns, m);
+
+  if (state.done) {
+    $('btnNext').textContent = 'Ver resultado final →';
+    $('btnNext').onclick = showFinal;
+  }
+});
+
+$('btnNext').addEventListener('click', renderRound);
+
+$('btnShare').addEventListener('click', () => {
+  const bars = ['⬛','🟥','🟨','🟩'];
+  const d = new Date().toLocaleDateString('es-ES', {day:'numeric',month:'long',year:'numeric'});
+  let txt = `🎬 CineFrame — ${d}\n${state.total} / 1500 pts\n\n`;
+  state.roundScores.forEach((sc, i) => {
+    const b = sc >= 240 ? bars[3] : sc >= 150 ? bars[2] : sc > 0 ? bars[1] : bars[0];
+    txt += `${b} Ronda ${i+1}: ${sc} pts\n`;
+  });
+  navigator.clipboard.writeText(txt).then(() => {
+    $('toast').classList.add('on');
+    setTimeout(() => $('toast').classList.remove('on'), 2000);
+  });
+});
+
+// ── Init ──────────────────────────────────────────────────────────────────────
+async function init() {
+  // Fecha en cabecera
+  $('hdrDate').textContent = new Date().toLocaleDateString('es-ES', {
+    weekday:'long', day:'numeric', month:'long'
+  });
+
+  hide('stateLoading');
+  hide('stateEmpty');
+  hide('stateAlready');
+  hide('final');
+
+  // Cargar peliculas.json
+  let db = [];
+  try {
+    const res = await fetch('peliculas.json?v=' + Date.now());
+    db = await res.json();
+  } catch(e) {
+    hide('stateLoading');
+    show('stateEmpty');
+    hideCard();
+    return;
+  }
+
+  hide('stateLoading');
+
+  const today = todayKey();
+  const entry = db.find(e => e.date === today);
+  if (!entry || !entry.movies?.length) {
+    show('stateEmpty');
+    hideCard();
+    return;
+  }
+  movies = entry.movies;
+
+  loadState();
+
+  if (state.done) {
+    $('alreadyPts').textContent = state.total + ' / 1500 pts';
+    show('stateAlready');
+    hideCard();
+    // Mostrar también el resumen final
+    setTimeout(showFinal, 100);
+    return;
+  }
+
+  renderRound();
+}
+
+init();
+
+// Detectar cambio de día sin recargar
+setInterval(() => {
+  if (!localStorage.getItem('cf_day')) localStorage.setItem('cf_day', todayKey());
+  if (localStorage.getItem('cf_day') !== todayKey()) {
+    localStorage.setItem('cf_day', todayKey());
+    location.reload();
+  }
+}, 60000);
+</script>
+</body>
+</html>
