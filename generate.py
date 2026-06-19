@@ -65,7 +65,7 @@ Nacionalidades válidas: {", ".join(NATIONALITIES)}"""
         "generationConfig": {"temperature": 0.9, "maxOutputTokens": 1000}
     }).encode("utf-8")
 
-    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key={GOOGLE_API_KEY}"
+    url = f"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
     req = urllib.request.Request(url, data=body, headers={"Content-Type": "application/json"}, method="POST")
 
     with urllib.request.urlopen(req) as resp:
