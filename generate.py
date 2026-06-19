@@ -11,7 +11,7 @@ import urllib.parse
 import re
 import sys
 
-GOOGLE_API_KEY = os.environ["GOOGLE_API_KEY"]
+GOOGLE_API_KEY = os.environ["GEMINI_API_KEY"]
 JSON_PATH = os.path.join(os.path.dirname(__file__), "peliculas.json")
 
 NATIONALITIES = [
