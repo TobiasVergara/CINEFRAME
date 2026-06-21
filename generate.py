@@ -77,7 +77,7 @@ def ask_gemini_for_movies(target_date, already_used):
 
     url = (
         "https://generativelanguage.googleapis.com/v1beta/models/"
-        f"gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
+        f"gemini-1.5-flash-8b:generateContent?key={GOOGLE_API_KEY}"
     )
 
     # Reintento automatico con espera exponencial
