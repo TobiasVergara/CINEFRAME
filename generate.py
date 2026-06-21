@@ -11,17 +11,18 @@ import urllib.error
 import urllib.parse
 import re
 import sys
+import time
 
 GOOGLE_API_KEY = os.environ.get("GOOGLE_API_KEY") or os.environ.get("GEMINI_API_KEY")
 if not GOOGLE_API_KEY:
-    raise ValueError("No se encontró GOOGLE_API_KEY ni GEMINI_API_KEY en las variables de entorno")
+    raise ValueError("No se encontro GOOGLE_API_KEY ni GEMINI_API_KEY en las variables de entorno")
 
 JSON_PATH = os.path.join(os.path.dirname(__file__), "peliculas.json")
 
 NATIONALITIES = [
-    "Americana", "Española", "Francesa", "Italiana", "Británica",
+    "Americana", "Espanola", "Francesa", "Italiana", "Britanica",
     "Alemana", "Japonesa", "Coreana", "Mexicana", "Argentina",
-    "Sueca", "Danesa", "Rusa / Soviética", "China", "Iraní",
+    "Sueca", "Danesa", "Rusa / Sovietica", "China", "Irani",
     "India", "Australiana", "Canadiense", "Belga", "Polaca"
 ]
 
@@ -50,12 +51,12 @@ def ask_gemini_for_movies(target_date, already_used):
         "- Variedad de generos: drama, thriller, comedia, ciencia ficcion, etc.\n"
         "- Dificultad progresiva: la primera relativamente conocida, la quinta mas oscura.\n"
         f"- NO repitas ninguna de estas peliculas ya usadas: {used_str}\n"
-        "- Las peliculas deben ser reales y verificables en Wikipedia en español.\n\n"
+        "- Las peliculas deben ser reales y verificables en Wikipedia.\n\n"
         "Responde UNICAMENTE con un array JSON valido, sin texto adicional, sin markdown, sin comentarios.\n"
         "Formato exacto:\n"
         "[\n"
         "  {\n"
-        '    "title": "Titulo en español o el mas conocido",\n'
+        '    "title": "Titulo en espanol o el mas conocido",\n'
         '    "title_en": "Titulo original en ingles o idioma nativo",\n'
         '    "year": 1994,\n'
         '    "nationality": "Americana",\n'
@@ -78,20 +79,39 @@ def ask_gemini_for_movies(target_date, already_used):
         "https://generativelanguage.googleapis.com/v1beta/models/"
         f"gemini-2.0-flash:generateContent?key={GOOGLE_API_KEY}"
     )
-    req = urllib.request.Request(
-        url,
-        data=body,
-        headers={"Content-Type": "application/json"},
-        method="POST"
-    )
 
-    try:
-        with urllib.request.urlopen(req) as resp:
-            data = json.loads(resp.read())
-    except urllib.error.HTTPError as e:
-        error_body = e.read().decode()
-        print(f"Error HTTP {e.code} de Gemini: {error_body}")
-        raise
+    # Reintento automatico con espera exponencial
+    max_retries = 5
+    wait = 30  # segundos entre reintentos
+
+    for attempt in range(1, max_retries + 1):
+        print(f"  Intento {attempt}/{max_retries} de llamar a Gemini...")
+        req = urllib.request.Request(
+            url,
+            data=body,
+            headers={"Content-Type": "application/json"},
+            method="POST"
+        )
+        try:
+            with urllib.request.urlopen(req) as resp:
+                data = json.loads(resp.read())
+            print("  Gemini respondio correctamente.")
+            break
+        except urllib.error.HTTPError as e:
+            error_body = e.read().decode()
+            print(f"  Error HTTP {e.code}: {error_body[:200]}")
+            if e.code == 429:
+                if attempt < max_retries:
+                    print(f"  Limite de peticiones alcanzado. Esperando {wait} segundos...")
+                    time.sleep(wait)
+                    wait = min(wait * 2, 120)  # espera maxima 2 minutos
+                else:
+                    print("  Maximos reintentos alcanzados.")
+                    raise
+            else:
+                raise
+    else:
+        raise RuntimeError("No se pudo conectar con Gemini tras varios intentos.")
 
     raw = data["candidates"][0]["content"]["parts"][0]["text"].strip()
     raw = re.sub(r"^```[a-z]*\n?", "", raw)
@@ -200,7 +220,7 @@ def main():
     if len(sys.argv) > 1:
         tomorrow = sys.argv[1]
 
-    print(f"\nCineFrame — generando peliculas para {tomorrow}\n")
+    print(f"\nCineFrame -- generando peliculas para {tomorrow}\n")
 
     db = load_db()
 
@@ -212,7 +232,7 @@ def main():
 
     print("Pidiendo peliculas a Gemini...")
     movies_raw = ask_gemini_for_movies(tomorrow, already_used)
-    print(f"Gemini sugirió {len(movies_raw)} peliculas\n")
+    print(f"Gemini sugirio {len(movies_raw)} peliculas\n")
 
     movies_final = []
     for m in movies_raw:
@@ -239,4 +259,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-
