@@ -266,4 +266,4 @@ if __name__ == "__main__":
         models_data = json.loads(r.read())
     for m in models_data.get("models", []):
         print(m.get("name"), "-", m.get("displayName"))
-    return
+    sys.exit(0)
