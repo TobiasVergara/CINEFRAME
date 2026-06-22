@@ -1,0 +1,72 @@
+[
+  {
+    "date": "2026-06-22",
+    "movies": [
+      { "title":"El padrino","title_en":"The Godfather","title_original":"The Godfather","year":1972,"nationality":"Americana","director":"Francis Ford Coppola","hint":"Familia Corleone","tmdb_id":238 },
+      { "title":"Todo sobre mi madre","title_en":"All About My Mother","title_original":"Todo sobre mi madre","year":1999,"nationality":"Española","director":"Pedro Almodóvar","hint":"Almodóvar, Barcelona","tmdb_id":42258 },
+      { "title":"Parásitos","title_en":"Parasite","title_original":"기생충","year":2019,"nationality":"Coreana","director":"Bong Joon-ho","hint":"Palma de Oro 2019","tmdb_id":496243 },
+      { "title":"Amarcord","title_en":"Amarcord","title_original":"Amarcord","year":1973,"nationality":"Italiana","director":"Federico Fellini","hint":"Fellini, pueblo italiano","tmdb_id":14718 },
+      { "title":"La doble vida de Verónica","title_en":"The Double Life of Véronique","title_original":"La double vie de Véronique","year":1991,"nationality":"Francesa","director":"Krzysztof Kieślowski","hint":"Kieślowski, doble identidad","tmdb_id":11202 }
+    ]
+  },
+  {
+    "date": "2026-06-23",
+    "movies": [
+      { "title":"Blade Runner","title_en":"Blade Runner","title_original":"Blade Runner","year":1982,"nationality":"Americana","director":"Ridley Scott","hint":"Androides y lluvia","tmdb_id":78 },
+      { "title":"El laberinto del fauno","title_en":"Pan's Labyrinth","title_original":"El laberinto del fauno","year":2006,"nationality":"Española","director":"Guillermo del Toro","hint":"Posguerra civil española","tmdb_id":420 },
+      { "title":"Rashomon","title_en":"Rashomon","title_original":"羅生門","year":1950,"nationality":"Japonesa","director":"Akira Kurosawa","hint":"Cuatro versiones del mismo crimen","tmdb_id":10320 },
+      { "title":"La vida de los otros","title_en":"The Lives of Others","title_original":"Das Leben der Anderen","year":2006,"nationality":"Alemana","director":"Florian Henckel von Donnersmarck","hint":"Stasi, RDA","tmdb_id":4935 },
+      { "title":"Burning","title_en":"Burning","title_original":"버닝","year":2018,"nationality":"Coreana","director":"Lee Chang-dong","hint":"Invernaderos, Murakami","tmdb_id":476292 }
+    ]
+  },
+  {
+    "date": "2026-06-24",
+    "movies": [
+      { "title":"Pulp Fiction","title_en":"Pulp Fiction","title_original":"Pulp Fiction","year":1994,"nationality":"Americana","director":"Quentin Tarantino","hint":"Historias entrelazadas","tmdb_id":680 },
+      { "title":"Roma","title_en":"Roma","title_original":"Roma","year":2018,"nationality":"Mexicana","director":"Alfonso Cuarón","hint":"México DF, blanco y negro","tmdb_id":508442 },
+      { "title":"El séptimo sello","title_en":"The Seventh Seal","title_original":"Det sjunde inseglet","year":1957,"nationality":"Sueca","director":"Ingmar Bergman","hint":"Ajedrez con la muerte","tmdb_id":490 },
+      { "title":"La gran belleza","title_en":"The Great Beauty","title_original":"La grande bellezza","year":2013,"nationality":"Italiana","director":"Paolo Sorrentino","hint":"Roma, decadencia","tmdb_id":166393 },
+      { "title":"El viento nos llevará","title_en":"The Wind Will Carry Us","title_original":"باد ما را خواهد برد","year":1999,"nationality":"Iraní","director":"Abbas Kiarostami","hint":"Kiarostami, pueblo kurdo","tmdb_id":10918 }
+    ]
+  },
+  {
+    "date": "2026-06-25",
+    "movies": [
+      { "title":"2001: Una odisea del espacio","title_en":"2001: A Space Odyssey","title_original":"2001: A Space Odyssey","year":1968,"nationality":"Británica","director":"Stanley Kubrick","hint":"HAL 9000, monolito","tmdb_id":62 },
+      { "title":"Y tu mamá también","title_en":"Y tu mamá también","title_original":"Y tu mamá también","year":2001,"nationality":"Mexicana","director":"Alfonso Cuarón","hint":"Road trip, verano","tmdb_id":9312 },
+      { "title":"Oldboy","title_en":"Oldboy","title_original":"올드보이","year":2003,"nationality":"Coreana","director":"Park Chan-wook","hint":"15 años encerrado","tmdb_id":6217 },
+      { "title":"Fanny y Alexander","title_en":"Fanny and Alexander","title_original":"Fanny och Alexander","year":1982,"nationality":"Sueca","director":"Ingmar Bergman","hint":"Familia sueca, Navidad","tmdb_id":11778 },
+      { "title":"El sabor de la cereza","title_en":"Taste of Cherry","title_original":"طعم گیلاس","year":1997,"nationality":"Iraní","director":"Abbas Kiarostami","hint":"Palma de Oro, suicidio","tmdb_id":12249 }
+    ]
+  },
+  {
+    "date": "2026-06-26",
+    "movies": [
+      { "title":"Apocalypse Now","title_en":"Apocalypse Now","title_original":"Apocalypse Now","year":1979,"nationality":"Americana","director":"Francis Ford Coppola","hint":"Vietnam, río arriba","tmdb_id":1394 },
+      { "title":"Caché","title_en":"Hidden","title_original":"Caché","year":2005,"nationality":"Francesa","director":"Michael Haneke","hint":"Cintas de video anónimas","tmdb_id":8487 },
+      { "title":"Ran","title_en":"Ran","title_original":"乱","year":1985,"nationality":"Japonesa","director":"Akira Kurosawa","hint":"Kurosawa, samurais, traición","tmdb_id":11868 },
+      { "title":"El hijo de Saúl","title_en":"Son of Saul","title_original":"Saul fia","year":2015,"nationality":"Húngara","director":"László Nemes","hint":"Auschwitz, Sonderkommando","tmdb_id":318922 },
+      { "title":"Cleo de 5 a 7","title_en":"Cléo from 5 to 7","title_original":"Cléo de 5 à 7","year":1962,"nationality":"Francesa","director":"Agnès Varda","hint":"Varda, París en tiempo real","tmdb_id":11470 }
+    ]
+  },
+  {
+    "date": "2026-06-27",
+    "movies": [
+      { "title":"Taxi Driver","title_en":"Taxi Driver","title_original":"Taxi Driver","year":1976,"nationality":"Americana","director":"Martin Scorsese","hint":"Nueva York, insomnio","tmdb_id":103 },
+      { "title":"Tres colores: Azul","title_en":"Three Colors: Blue","title_original":"Trois couleurs: Bleu","year":1993,"nationality":"Francesa","director":"Krzysztof Kieślowski","hint":"Trilogía francesa, libertad","tmdb_id":841 },
+      { "title":"El espíritu de la colmena","title_en":"The Spirit of the Beehive","title_original":"El espíritu de la colmena","year":1973,"nationality":"Española","director":"Víctor Erice","hint":"Frankenstein, posguerra","tmdb_id":11844 },
+      { "title":"A Separation","title_en":"A Separation","title_original":"جدایی نادر از سیمین","year":2011,"nationality":"Iraní","director":"Asghar Farhadi","hint":"Divorcio, Irán","tmdb_id":72105 },
+      { "title":"Jeanne Dielman","title_en":"Jeanne Dielman","title_original":"Jeanne Dielman, 23, quai du Commerce, 1080 Bruxelles","year":1975,"nationality":"Belga","director":"Chantal Akerman","hint":"Rutina doméstica, Akerman","tmdb_id":27276 }
+    ]
+  },
+  {
+    "date": "2026-06-28",
+    "movies": [
+      { "title":"Chinatown","title_en":"Chinatown","title_original":"Chinatown","year":1974,"nationality":"Americana","director":"Roman Polanski","hint":"Detective privado, Los Ángeles","tmdb_id":1071 },
+      { "title":"Mulholland Drive","title_en":"Mulholland Drive","title_original":"Mulholland Drive","year":2001,"nationality":"Americana","director":"David Lynch","hint":"Lynch, Hollywood onírico","tmdb_id":1018 },
+      { "title":"El pianista","title_en":"The Pianist","title_original":"The Pianist","year":2002,"nationality":"Francesa","director":"Roman Polanski","hint":"Varsovia, Segunda Guerra","tmdb_id":423 },
+      { "title":"Moonlight","title_en":"Moonlight","title_original":"Moonlight","year":2016,"nationality":"Americana","director":"Barry Jenkins","hint":"Identidad, Miami","tmdb_id":376867 },
+      { "title":"Armonías de Werckmeister","title_en":"Werckmeister Harmonies","title_original":"Werckmeister harmóniák","year":2000,"nationality":"Húngara","director":"Béla Tarr","hint":"Ballena, pueblo húngaro","tmdb_id":12393 }
+    ]
+  }
+]
