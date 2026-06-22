@@ -1,6 +1,6 @@
 [
   {
-    "date": "2026-06-22",
+    "date": "2026-06-19",
     "movies": [
       { "title":"El padrino","title_en":"The Godfather","title_original":"The Godfather","year":1972,"nationality":"Americana","director":"Francis Ford Coppola","hint":"Familia Corleone","image":"https://upload.wikimedia.org/wikipedia/en/1/1c/Godfather_ver1.jpg" },
       { "title":"Todo sobre mi madre","title_en":"All About My Mother","title_original":"Todo sobre mi madre","year":1999,"nationality":"Española","director":"Pedro Almodóvar","hint":"Almodóvar, Barcelona","image":"https://upload.wikimedia.org/wikipedia/en/b/b4/Todo_sobre_mi_madre.jpg" },
