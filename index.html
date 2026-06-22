@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CineFrame</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #0D0D0F; --surface: #161618; --surface2: #1E1E21;
+  --border: rgba(255,255,255,0.07); --border2: rgba(255,255,255,0.13);
+  --text: #F0EEED; --muted: #777472; --gold: #E8C54A;
+  --green: #4ABA7A; --red: #E05252; --accent: #7C6EF0;
+  --r: 10px; --rlg: 14px;
+}
+body { background:var(--bg); color:var(--text); font-family:'Space Grotesk',sans-serif; min-height:100vh; display:flex; flex-direction:column; align-items:center; padding:0 16px 80px; }
+
+/* HEADER */
+header { width:100%; max-width:700px; display:flex; align-items:center; justify-content:space-between; padding:20px 0 16px; border-bottom:.5px solid var(--border2); margin-bottom:24px; }
+.logo-name { font-family:'Space Mono',monospace; font-size:18px; font-weight:700; color:var(--gold); }
+.logo-tag { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); margin-top:3px; }
+.hdr-right { display:flex; align-items:center; gap:12px; }
+.btn-archive { background:transparent; border:.5px solid var(--border2); border-radius:var(--r); padding:7px 13px; font-family:'Space Grotesk',sans-serif; font-size:12px; color:var(--muted); cursor:pointer; transition:all .2s; letter-spacing:.5px; }
+.btn-archive:hover { color:var(--text); border-color:var(--border2); background:var(--surface2); }
+.btn-archive.active { color:var(--gold); border-color:var(--gold); }
+.hdr-score-wrap { text-align:right; }
+.hdr-date { font-size:10px; color:var(--muted); letter-spacing:1px; text-transform:uppercase; }
+.hdr-score { font-family:'Space Mono',monospace; font-size:22px; font-weight:700; color:var(--gold); }
+
+/* DOTS */
+.dots { width:100%; max-width:700px; display:flex; gap:6px; margin-bottom:20px; }
+.dot { flex:1; height:3px; border-radius:2px; background:var(--surface2); transition:background .4s; }
+.dot.done { background:var(--green); }
+.dot.active { background:var(--gold); }
+
+/* CARD */
+.card { width:100%; max-width:700px; background:var(--surface); border:.5px solid var(--border2); border-radius:var(--rlg); overflow:hidden; }
+
+/* FRAME */
+.frame { position:relative; width:100%; aspect-ratio:16/9; background:#000; overflow:hidden; }
+.frame img { width:100%; height:100%; object-fit:cover; object-position:center; display:block; }
+.frame-grad { position:absolute; inset:0; background:linear-gradient(to bottom,rgba(0,0,0,.2) 0%,transparent 40%,rgba(0,0,0,.6) 100%); pointer-events:none; }
+.frame-round { position:absolute; top:14px; left:16px; font-family:'Space Mono',monospace; font-size:10px; letter-spacing:2px; color:rgba(255,255,255,.5); text-transform:uppercase; }
+.frame-hint { position:absolute; bottom:14px; right:16px; font-size:11px; color:rgba(255,255,255,.4); letter-spacing:1px; }
+.frame-watermark { position:absolute; bottom:10px; left:12px; font-size:9px; color:rgba(255,255,255,.2); font-family:'Space Mono',monospace; letter-spacing:.5px; pointer-events:none; }
+.frame-img-placeholder { width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#111; }
+.frame-img-placeholder svg { opacity:.2; }
+
+/* INPUTS */
+.inputs { padding:18px 18px 22px; display:flex; flex-direction:column; gap:13px; }
+.flabel { font-size:10px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:5px; }
+input[type=text], input[type=number], select {
+  width:100%; background:var(--surface2); border:.5px solid var(--border2); border-radius:var(--r);
+  padding:10px 12px; font-family:'Space Grotesk',sans-serif; font-size:14px; color:var(--text);
+  outline:none; transition:border-color .2s;
+}
+input:focus, select:focus { border-color:var(--accent); }
+input::placeholder { color:var(--muted); }
+input:disabled, select:disabled { opacity:.4; cursor:not-allowed; }
+select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath fill='%23777472' d='M5 6L0 0h10z'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; cursor:pointer; }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+.btn-go { background:var(--gold); color:#0D0D0F; border:none; border-radius:var(--r); padding:12px; font-family:'Space Grotesk',sans-serif; font-size:14px; font-weight:600; cursor:pointer; width:100%; transition:opacity .2s,transform .1s; }
+.btn-go:hover { opacity:.85; }
+.btn-go:active { transform:scale(.98); }
+.btn-go:disabled { opacity:.3; cursor:not-allowed; }
+
+/* RESULT PANEL */
+.result { display:none; padding:16px 18px 20px; border-top:.5px solid var(--border); flex-direction:column; gap:11px; }
+.result.on { display:flex; }
+.result-top { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+.result-title { font-size:16px; font-weight:600; line-height:1.3; }
+.result-pts { font-family:'Space Mono',monospace; font-size:20px; font-weight:700; color:var(--gold); white-space:nowrap; }
+.breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; }
+.bk { background:var(--surface2); border-radius:var(--r); padding:10px 12px; }
+.bk-label { font-size:9px; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); }
+.bk-value { font-size:12px; color:var(--text); margin:3px 0; font-weight:500; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.bk-score { font-family:'Space Mono',monospace; font-size:17px; font-weight:700; }
+.s-green{color:var(--green);} .s-gold{color:var(--gold);} .s-red{color:var(--red);} .s-muted{color:var(--muted);}
+.btn-next { background:transparent; border:.5px solid var(--border2); border-radius:var(--r); padding:10px; font-family:'Space Grotesk',sans-serif; font-size:14px; color:var(--text); cursor:pointer; transition:background .2s; width:100%; }
+.btn-next:hover { background:var(--surface2); }
+
+/* FINAL SCREEN */
+#final { display:none; width:100%; max-width:700px; flex-direction:column; gap:14px; }
+#final.on { display:flex; }
+.final-hero { background:var(--surface); border:.5px solid var(--border2); border-radius:var(--rlg); padding:32px 24px 26px; text-align:center; }
+.final-label { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); }
+.final-num { font-family:'Space Mono',monospace; font-size:60px; font-weight:700; color:var(--gold); line-height:1; margin:10px 0 4px; }
+.final-denom { font-family:'Space Mono',monospace; font-size:12px; color:var(--muted); }
+.final-grade { font-size:16px; font-weight:500; margin-top:12px; }
+
+/* ROUND CARDS in final */
+.final-rounds { display:flex; flex-direction:column; gap:8px; }
+.final-round-card { background:var(--surface); border:.5px solid var(--border); border-radius:var(--r); overflow:hidden; }
+.frc-header { display:flex; align-items:center; gap:10px; padding:12px 14px; cursor:pointer; user-select:none; }
+.frc-header:hover { background:rgba(255,255,255,.02); }
+.frc-num { font-family:'Space Mono',monospace; font-size:10px; color:var(--muted); min-width:16px; }
+.frc-title { flex:1; font-size:13px; font-weight:500; }
+.frc-bar-wrap { width:60px; height:3px; background:var(--surface2); border-radius:2px; overflow:hidden; }
+.frc-bar { height:100%; border-radius:2px; transition:width 1s ease; }
+.frc-pts { font-family:'Space Mono',monospace; font-size:14px; color:var(--gold); font-weight:700; min-width:36px; text-align:right; }
+.frc-chevron { font-size:10px; color:var(--muted); transition:transform .2s; margin-left:4px; }
+.frc-detail { display:none; padding:0 14px 12px; }
+.frc-detail.open { display:block; }
+.frc-breakdown { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+.frc-bk { background:var(--surface2); border-radius:8px; padding:8px 10px; }
+.frc-bk-label { font-size:9px; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
+.frc-bk-answer { font-size:11px; color:var(--text); margin:2px 0; }
+.frc-bk-guess { font-size:10px; color:var(--muted); margin-bottom:2px; font-style:italic; }
+.frc-bk-score { font-family:'Space Mono',monospace; font-size:15px; font-weight:700; }
+
+.btn-share { background:transparent; border:.5px solid var(--border2); border-radius:var(--r); padding:12px; font-family:'Space Grotesk',sans-serif; font-size:14px; color:var(--text); cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px; transition:background .2s; }
+.btn-share:hover { background:var(--surface2); }
+
+/* ARCHIVE SCREEN */
+#archive { display:none; width:100%; max-width:700px; flex-direction:column; gap:10px; }
+#archive.on { display:flex; }
+.archive-title { font-size:11px; letter-spacing:2px; text-transform:uppercase; color:var(--muted); padding:4px 0 8px; }
+.archive-row { display:flex; align-items:center; gap:12px; padding:13px 16px; background:var(--surface); border:.5px solid var(--border); border-radius:var(--r); cursor:pointer; transition:border-color .2s; }
+.archive-row:hover { border-color:var(--border2); }
+.archive-row.played { border-color:rgba(74,186,122,.2); }
+.archive-row.today { border-color:rgba(232,197,74,.3); }
+.ar-date { font-size:12px; color:var(--muted); min-width:80px; }
+.ar-status { flex:1; font-size:13px; }
+.ar-score { font-family:'Space Mono',monospace; font-size:13px; color:var(--gold); }
+.ar-arrow { font-size:12px; color:var(--muted); }
+
+/* STATE BOXES */
+.state-box { width:100%; max-width:700px; padding:50px 24px; display:flex; flex-direction:column; align-items:center; gap:12px; background:var(--surface); border:.5px solid var(--border2); border-radius:var(--rlg); text-align:center; }
+.state-box p { font-size:13px; color:var(--muted); max-width:320px; line-height:1.6; }
+.state-title { font-size:17px; font-weight:500; }
+
+/* TOAST */
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%) translateY(16px); background:var(--green); color:#0D0D0F; font-size:13px; font-weight:600; padding:9px 18px; border-radius:var(--r); opacity:0; pointer-events:none; transition:all .25s; z-index:99; }
+.toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
+
+@keyframes fadein { from{opacity:0;transform:scale(1.02);}to{opacity:1;transform:scale(1);} }
+.fadein { animation:fadein .4s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div>
+    <div class="logo-name">CINEFRAME</div>
+    <div class="logo-tag">Adivina la película</div>
+  </div>
+  <div class="hdr-right">
+    <button class="btn-archive" id="btnArchive">Archivo</button>
+    <div class="hdr-score-wrap">
+      <div class="hdr-date" id="hdrDate">—</div>
+      <div class="hdr-score" id="hdrScore">0</div>
+    </div>
+  </div>
+</header>
+
+<div class="dots" id="dots">
+  <div class="dot active" id="d0"></div>
+  <div class="dot" id="d1"></div>
+  <div class="dot" id="d2"></div>
+  <div class="dot" id="d3"></div>
+  <div class="dot" id="d4"></div>
+</div>
+
+<!-- GAME CARD -->
+<div class="card" id="card">
+  <div class="frame" id="frameBox">
+    <img id="frameImg" src="" alt="Fotograma" />
+    <div class="frame-grad"></div>
+    <div class="frame-round" id="frameRound">Ronda 1 / 5</div>
+    <div class="frame-hint" id="frameHint"></div>
+    <div class="frame-watermark">filmgrab.com</div>
+  </div>
+  <div class="inputs">
+    <div>
+      <div class="flabel">Título de la película</div>
+      <input type="text" id="iTitle" placeholder="Título en cualquier idioma..." autocomplete="off" />
+    </div>
+    <div class="two-col">
+      <div>
+        <div class="flabel">Año de estreno</div>
+        <input type="number" id="iYear" placeholder="Ej: 1994" min="1888" max="2030" />
+      </div>
+      <div>
+        <div class="flabel">Nacionalidad</div>
+        <select id="iNat">
+          <option value="">Selecciona...</option>
+          <option>Americana</option><option>Española</option><option>Francesa</option>
+          <option>Italiana</option><option>Británica</option><option>Alemana</option>
+          <option>Japonesa</option><option>Coreana</option><option>Mexicana</option>
+          <option>Argentina</option><option>Sueca</option><option>Danesa</option>
+          <option>Rusa / Soviética</option><option>China</option><option>Iraní</option>
+          <option>India</option><option>Australiana</option><option>Canadiense</option>
+          <option>Belga</option><option>Polaca</option><option>Húngara</option>
+          <option>Tailandesa</option><option>Otra</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-go" id="btnGo">Confirmar respuesta</button>
+  </div>
+  <div class="result" id="result">
+    <div class="result-top">
+      <div class="result-title" id="rTitle">—</div>
+      <div class="result-pts" id="rPts">—</div>
+    </div>
+    <div class="breakdown" id="rBreakdown"></div>
+    <button class="btn-next" id="btnNext">Siguiente ronda →</button>
+  </div>
+</div>
+
+<!-- FINAL -->
+<div id="final">
+  <div class="final-hero">
+    <div class="final-label">Puntuación final</div>
+    <div class="final-num" id="finalNum">0</div>
+    <div class="final-denom">/ 1500 puntos</div>
+    <div class="final-grade" id="finalGrade"></div>
+  </div>
+  <div class="final-rounds" id="finalRounds"></div>
+  <button class="btn-share" id="btnShare">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
+    Compartir resultado
+  </button>
+</div>
+
+<!-- ARCHIVE -->
+<div id="archive">
+  <div class="archive-title">Días anteriores</div>
+  <div id="archiveList"></div>
+</div>
+
+<!-- STATES -->
+<div class="state-box" id="stateLoading">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/></svg>
+  <div class="state-title">Cargando...</div>
+</div>
+<div class="state-box" id="stateEmpty" style="display:none">
+  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="var(--muted)" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+  <div class="state-title">Sin películas para hoy</div>
+  <p>El generador aún no ha preparado el set de hoy. Vuelve más tarde.</p>
+</div>
+
+<div class="toast" id="toast">¡Copiado!</div>
+
+<script>
+const $ = id => document.getElementById(id);
+const todayKey = () => new Date().toISOString().slice(0,10);
+const SK = date => "cf3_" + date;
+
+// ── Scoring ────────────────────────────────────────────────────────────────
+function norm(s) {
+  return (s||"").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g,"").replace(/[^a-z0-9]/g,"").trim();
+}
+function lev(a,b) {
+  const m=a.length,n=b.length;
+  const dp=Array.from({length:m+1},(_,i)=>Array.from({length:n+1},(_,j)=>i===0?j:j===0?i:0));
+  for(let i=1;i<=m;i++) for(let j=1;j<=n;j++)
+    dp[i][j]=a[i-1]===b[j-1]?dp[i-1][j-1]:1+Math.min(dp[i-1][j],dp[i][j-1],dp[i-1][j-1]);
+  return dp[m][n];
+}
+function scoreTitle(guess, movie) {
+  if(!guess) return 0;
+  const g = norm(guess);
+  // Accept any known title variant
+  const variants = [
+    movie.title, movie.title_en, movie.title_original,
+    movie.title_alt, movie.title_es
+  ].filter(Boolean).map(norm);
+
+  let best = 0;
+  for(const a of variants) {
+    if(g===a) return 100;
+    const dist = lev(g,a);
+    const sim = 1 - dist/Math.max(g.length,a.length,1);
+    let sc = 0;
+    if(sim>=.85) sc=90; else if(sim>=.70) sc=70;
+    else if(sim>=.50) sc=40; else if(sim>=.30) sc=15;
+    best = Math.max(best,sc);
+  }
+  return best;
+}
+function scoreYear(guess,answer) {
+  if(!guess) return 0;
+  const d=Math.abs(parseInt(guess)-answer);
+  if(d===0) return 100; if(d===1) return 80; if(d===2) return 60;
+  if(d===3) return 40; if(d<=5) return 20; if(d<=10) return 5; return 0;
+}
+function scoreNat(guess,answer) {
+  return guess&&norm(guess)===norm(answer)?100:0;
+}
+function sc(s){ return s>=80?'s-green':s>=40?'s-gold':s>0?'s-red':'s-muted'; }
+function barColor(s){ return s>=80?'#4ABA7A':s>=40?'#E8C54A':s>0?'#E05252':'#333'; }
+
+// ── State ──────────────────────────────────────────────────────────────────
+let movies=[], currentDate=todayKey();
+let state={round:0,total:0,roundScores:[],answers:[],done:false};
+let allDb=[];
+
+function loadState(date) {
+  try { const s=JSON.parse(localStorage.getItem(SK(date))); if(s) state=s; }
+  catch(e){}
+}
+function saveState(date) { localStorage.setItem(SK(date),JSON.stringify(state)); }
+
+// ── UI helpers ─────────────────────────────────────────────────────────────
+function hide(id){ $(id).style.display='none'; }
+function show(id){ $(id).style.display='flex'; }
+function hideGame(){ hide('card'); hide('dots'); }
+function showGame(){ $('card').style.display=''; $('dots').style.display='flex'; }
+
+function updateDots() {
+  for(let i=0;i<5;i++){
+    const d=$('d'+i); d.className='dot';
+    if(i<state.round) d.classList.add('done');
+    else if(i===state.round) d.classList.add('active');
+  }
+}
+
+function renderRound() {
+  const m=movies[state.round];
+  $('frameRound').textContent=`Ronda ${state.round+1} / 5`;
+  $('frameHint').textContent='';
+  const img=$('frameImg');
+  img.src=m.image||'';
+  img.className='fadein';
+  img.onerror=()=>{ img.style.display='none'; };
+  img.onload=()=>{ img.style.display=''; };
+  $('iTitle').value=''; $('iYear').value=''; $('iNat').value='';
+  ['iTitle','iYear','iNat','btnGo'].forEach(id=>$(id).disabled=false);
+  $('result').classList.remove('on');
+  updateDots();
+  $('hdrScore').textContent=state.total;
+}
+
+function showResult(ts,ys,ns,m,guesses) {
+  const total=ts+ys+ns;
+  $('rTitle').textContent=`${m.title} (${m.year})`;
+  $('rPts').textContent=total+' pts';
+  $('frameHint').textContent=m.hint||'';
+  $('rBreakdown').innerHTML=`
+    <div class="bk">
+      <div class="bk-label">Título</div>
+      <div class="bk-value" title="${m.title}">${m.title}</div>
+      <div class="bk-score ${sc(ts)}">${ts}</div>
+    </div>
+    <div class="bk">
+      <div class="bk-label">Año</div>
+      <div class="bk-value">${m.year}</div>
+      <div class="bk-score ${sc(ys)}">${ys}</div>
+    </div>
+    <div class="bk">
+      <div class="bk-label">Nacionalidad</div>
+      <div class="bk-value">${m.nationality}</div>
+      <div class="bk-score ${sc(ns)}">${ns}</div>
+    </div>`;
+  $('result').classList.add('on');
+}
+
+function showFinal(moviesArr, stateObj, isArchive) {
+  hideGame();
+  hide('stateLoading'); hide('stateEmpty');
+  $('final').classList.add('on');
+  $('finalNum').textContent=stateObj.total;
+  const grades=[[1400,'🎬 Maestro del celuloide'],[1100,'🎥 Gran cinéfilo'],[800,'🍿 Aficionado con clase'],[500,'🎞️ En camino'],[0,'📽️ Sigue entrenando']];
+  $('finalGrade').textContent=grades.find(g=>stateObj.total>=g[0])[1];
+
+  $('finalRounds').innerHTML=stateObj.roundScores.map((sc2,i)=>{
+    const m=moviesArr[i];
+    const ans=stateObj.answers[i]||{};
+    const pct=(sc2/300*100).toFixed(0);
+    const color=barColor(sc2/300*100);
+    return `
+      <div class="final-round-card">
+        <div class="frc-header" onclick="toggleFRC(${i})">
+          <div class="frc-num">${i+1}</div>
+          <div class="frc-title">${m.title} <span style="color:var(--muted);font-size:11px;font-weight:400">${m.year}</span></div>
+          <div class="frc-bar-wrap"><div class="frc-bar" id="frcbar${i}" style="width:0%;background:${color}"></div></div>
+          <div class="frc-pts">${sc2}</div>
+          <div class="frc-chevron" id="frcchev${i}">▼</div>
+        </div>
+        <div class="frc-detail" id="frcd${i}">
+          <div class="frc-breakdown">
+            <div class="frc-bk">
+              <div class="frc-bk-label">Título</div>
+              <div class="frc-bk-answer">${m.title}</div>
+              <div class="frc-bk-guess">${ans.titleGuess||'—'}</div>
+              <div class="frc-bk-score ${sc(ans.ts||0)}">${ans.ts||0}</div>
+            </div>
+            <div class="frc-bk">
+              <div class="frc-bk-label">Año</div>
+              <div class="frc-bk-answer">${m.year}</div>
+              <div class="frc-bk-guess">${ans.yearGuess||'—'}</div>
+              <div class="frc-bk-score ${sc(ans.ys||0)}">${ans.ys||0}</div>
+            </div>
+            <div class="frc-bk">
+              <div class="frc-bk-label">Nacionalidad</div>
+              <div class="frc-bk-answer">${m.nationality}</div>
+              <div class="frc-bk-guess">${ans.natGuess||'—'}</div>
+              <div class="frc-bk-score ${sc(ans.ns||0)}">${ans.ns||0}</div>
+            </div>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+
+  // Animate bars
+  setTimeout(()=>{
+    stateObj.roundScores.forEach((sc2,i)=>{
+      const bar=$('frcbar'+i);
+      if(bar) bar.style.width=(sc2/300*100).toFixed(0)+'%';
+    });
+  },100);
+
+  if(isArchive){
+    $('btnShare').style.display='none';
+  } else {
+    $('btnShare').style.display='';
+  }
+}
+
+window.toggleFRC=function(i){
+  const d=$('frcd'+i), ch=$('frcchev'+i);
+  const open=d.classList.toggle('open');
+  ch.textContent=open?'▲':'▼';
+};
+
+// ── SUBMIT ─────────────────────────────────────────────────────────────────
+$('btnGo').addEventListener('click',()=>{
+  const m=movies[state.round];
+  const titleGuess=$('iTitle').value.trim();
+  const yearGuess=$('iYear').value.trim();
+  const natGuess=$('iNat').value;
+  const ts=scoreTitle(titleGuess,m);
+  const ys=scoreYear(yearGuess,m.year);
+  const ns=scoreNat(natGuess,m.nationality);
+  const rnd=ts+ys+ns;
+
+  state.total+=rnd;
+  state.roundScores.push(rnd);
+  state.answers.push({titleGuess,yearGuess,natGuess,ts,ys,ns});
+  state.round++;
+  if(state.round===5) state.done=true;
+  saveState(currentDate);
+
+  ['iTitle','iYear','iNat','btnGo'].forEach(id=>$(id).disabled=true);
+  updateDots();
+  $('hdrScore').textContent=state.total;
+  showResult(ts,ys,ns,m,{titleGuess,yearGuess,natGuess});
+
+  if(state.done){
+    $('btnNext').textContent='Ver resultado final →';
+    $('btnNext').onclick=()=>{ $('result').classList.remove('on'); showFinal(movies,state,false); };
+  }
+});
+
+$('btnNext').addEventListener('click',renderRound);
+
+// ── SHARE ──────────────────────────────────────────────────────────────────
+$('btnShare').addEventListener('click',()=>{
+  const bars=['⬛','🟥','🟨','🟩'];
+  const d=new Date(currentDate+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'long',year:'numeric'});
+  let txt=`🎬 CineFrame — ${d}\n${state.total} / 1500 pts\n\n`;
+  state.roundScores.forEach((sc2,i)=>{
+    const b=sc2>=240?bars[3]:sc2>=150?bars[2]:sc2>0?bars[1]:bars[0];
+    txt+=`${b} Ronda ${i+1}: ${sc2} pts\n`;
+  });
+  navigator.clipboard.writeText(txt).then(()=>{
+    $('toast').classList.add('on');
+    setTimeout(()=>$('toast').classList.remove('on'),2000);
+  });
+});
+
+// ── ARCHIVE ────────────────────────────────────────────────────────────────
+$('btnArchive').addEventListener('click',()=>{
+  const archiveOpen=$('archive').classList.contains('on');
+  if(archiveOpen){
+    $('archive').classList.remove('on');
+    $('btnArchive').classList.remove('active');
+    // Restore current game state
+    restoreCurrentGame();
+  } else {
+    hideGame();
+    $('final').classList.remove('on');
+    $('archive').classList.add('on');
+    $('btnArchive').classList.add('active');
+    renderArchive();
+  }
+});
+
+function restoreCurrentGame(){
+  if(state.done){
+    showFinal(movies,state,false);
+  } else {
+    $('final').classList.remove('on');
+    showGame();
+    renderRound();
+  }
+}
+
+function renderArchive(){
+  const today=todayKey();
+  const past=allDb.filter(e=>e.date<=today).sort((a,b)=>b.date.localeCompare(a.date));
+  const list=$('archiveList');
+  if(!past.length){ list.innerHTML='<p style="color:var(--muted);font-size:13px;padding:16px 0">No hay días anteriores todavía.</p>'; return; }
+
+  list.innerHTML=past.map(entry=>{
+    const saved=JSON.parse(localStorage.getItem(SK(entry.date))||'null');
+    const isToday=entry.date===today;
+    const played=saved&&saved.done;
+    const d=new Date(entry.date+'T12:00:00').toLocaleDateString('es-ES',{day:'numeric',month:'short'});
+    return `<div class="archive-row ${played?'played':''} ${isToday?'today':''}"
+      onclick="playArchiveDate('${entry.date}')" >
+      <div class="ar-date">${d}${isToday?' · Hoy':''}</div>
+      <div class="ar-status">${played?'Completado':'Jugar'}</div>
+      <div class="ar-score">${played?saved.total+' pts':''}</div>
+      <div class="ar-arrow">→</div>
+    </div>`;
+  }).join('');
+}
+
+window.playArchiveDate=function(date){
+  $('archive').classList.remove('on');
+  $('btnArchive').classList.remove('active');
+
+  const entry=allDb.find(e=>e.date===date);
+  if(!entry) return;
+
+  currentDate=date;
+  movies=entry.movies;
+  state={round:0,total:0,roundScores:[],answers:[],done:false};
+  loadState(date);
+
+  const dateLabel=new Date(date+'T12:00:00').toLocaleDateString('es-ES',{weekday:'short',day:'numeric',month:'long'});
+  $('hdrDate').textContent=dateLabel;
+  $('hdrScore').textContent=state.total;
+
+  $('final').classList.remove('on');
+
+  if(state.done){
+    showFinal(movies,state,date!==todayKey());
+  } else {
+    showGame();
+    renderRound();
+  }
+};
+
+// ── INIT ───────────────────────────────────────────────────────────────────
+async function init(){
+  $('hdrDate').textContent=new Date().toLocaleDateString('es-ES',{weekday:'long',day:'numeric',month:'long'});
+  hide('stateEmpty'); hide('final'); hide('archive');
+  $('final').classList.remove('on');
+
+  let db=[];
+  try {
+    const res=await fetch('peliculas.json?v='+Date.now());
+    db=await res.json();
+  } catch(e){
+    hide('stateLoading'); show('stateEmpty'); hideGame(); return;
+  }
+  allDb=db;
+  hide('stateLoading');
+
+  const today=todayKey();
+  const entry=db.find(e=>e.date===today);
+  if(!entry||!entry.movies?.length){ show('stateEmpty'); hideGame(); return; }
+
+  movies=entry.movies;
+  loadState(today);
+
+  if(state.done){
+    hideGame();
+    showFinal(movies,state,false);
+  } else {
+    showGame();
+    renderRound();
+  }
+}
+
+init();
+
+// Midnight reload
+setInterval(()=>{
+  const k='cf_day';
+  if(!localStorage.getItem(k)) localStorage.setItem(k,todayKey());
+  if(localStorage.getItem(k)!==todayKey()){ localStorage.setItem(k,todayKey()); location.reload(); }
+},60000);
+</script>
+</body>
+</html>
