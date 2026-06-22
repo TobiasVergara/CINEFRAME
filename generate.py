@@ -259,3 +259,11 @@ def main():
 
 if __name__ == "__main__":
     main()
+# Listar modelos disponibles
+    url_models = f"https://generativelanguage.googleapis.com/v1beta/models?key={GOOGLE_API_KEY}"
+    req_models = urllib.request.Request(url_models, headers={"Content-Type": "application/json"})
+    with urllib.request.urlopen(req_models) as r:
+        models_data = json.loads(r.read())
+    for m in models_data.get("models", []):
+        print(m.get("name"), "-", m.get("displayName"))
+    return
